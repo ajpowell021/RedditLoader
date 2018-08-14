@@ -8,7 +8,6 @@ import android.support.v7.widget.RecyclerView
 import android.text.Html
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import com.android.volley.Request
@@ -31,14 +30,14 @@ class MainActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         // Data
-        val urlData = "https://www.reddit.com/r/rarepuppers/.json"
+        val urlData = "https://www.reddit.com/.json"
         val request = JsonObjectRequest(Request.Method.GET, urlData, null, Response.Listener<JSONObject> { response ->
 
-            val redditPosts = response
+            val posts = response
                     .getJSONObject("data")
                     .getJSONArray("children")
 
-            recyclerView.adapter = PostAdapter(redditPosts)
+            recyclerView.adapter = PostAdapter(posts)
 
         },
                 Response.ErrorListener {
@@ -70,9 +69,11 @@ class MainActivity : AppCompatActivity() {
         fun bind(item: JSONObject, position: Int) {
             val title = view.findViewById(R.id.post_title) as TextView
             val imageView = view.findViewById(R.id.post_image) as NetworkImageView
+            val subredditText = view.findViewById(R.id.sub_reddit_text) as TextView
             title.text = Html.fromHtml(item.getJSONObject("data")["title"].toString(), 0)
             val urlTest = item.getJSONObject("data")["thumbnail"].toString()
             imageView.setImageUrl(urlTest, VolleyService.imageLoader)
+            subredditText.text = Html.fromHtml(item.getJSONObject("data")["subreddit_name_prefixed"].toString(), 0)
         }
     }
 }

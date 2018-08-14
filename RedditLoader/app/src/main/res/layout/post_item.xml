@@ -3,27 +3,46 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="4dp"
+        android:padding="12dp"
         android:elevation="4dp"
         >
 
     <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_margin="12dp"
+            >
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:layout_weight="1"
             >
 
-        <TextView
+            <TextView
                 android:id="@+id/post_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="18sp"
                 />
 
-        <com.android.volley.toolbox.NetworkImageView
-                android:id="@+id/post_image"
+            <TextView
+                android:id="@+id/sub_reddit_text"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                />
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <com.android.volley.toolbox.NetworkImageView
+            android:id="@+id/post_image"
+            android:padding="8dp"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:scaleType="center"
+            />
 
     </LinearLayout>
 
