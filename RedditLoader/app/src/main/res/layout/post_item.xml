@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/item_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="4dp"
@@ -18,7 +19,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_weight="1"
+            android:layout_weight="8"
             >
 
             <TextView
@@ -37,7 +38,7 @@
 
         <com.android.volley.toolbox.NetworkImageView
             android:id="@+id/post_image"
-            android:padding="8dp"
+            android:layout_gravity="end"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"

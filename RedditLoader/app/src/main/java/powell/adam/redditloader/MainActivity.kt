@@ -1,7 +1,9 @@
 package powell.adam.redditloader
 
+import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v7.widget.CardView
 import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import android.support.v7.widget.RecyclerView
@@ -21,9 +23,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContentView(R.layout.activity_main)
-
 
         // Views
         val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
     class PostAdapter(val post: JSONArray) : RecyclerView.Adapter<PostViewHolder>() {
 
         override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
-            holder.bind(post.getJSONObject(position), position)
+            holder.bind(post.getJSONObject(position))
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
@@ -66,14 +66,24 @@ class MainActivity : AppCompatActivity() {
 
     class PostViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
 
-        fun bind(item: JSONObject, position: Int) {
+        fun bind(item: JSONObject) {
+
+            val cardView = view.findViewById(R.id.item_view) as CardView
             val title = view.findViewById(R.id.post_title) as TextView
             val imageView = view.findViewById(R.id.post_image) as NetworkImageView
-            val subredditText = view.findViewById(R.id.sub_reddit_text) as TextView
+            val subredditTextView = view.findViewById(R.id.sub_reddit_text) as TextView
+
+
             title.text = Html.fromHtml(item.getJSONObject("data")["title"].toString(), 0)
             val urlTest = item.getJSONObject("data")["thumbnail"].toString()
             imageView.setImageUrl(urlTest, VolleyService.imageLoader)
-            subredditText.text = Html.fromHtml(item.getJSONObject("data")["subreddit_name_prefixed"].toString(), 0)
+            subredditTextView.text = Html.fromHtml(item.getJSONObject("data")["subreddit_name_prefixed"].toString(), 0)
+
+            cardView.setOnClickListener {
+                val intent = Intent(view.context, WebViewActivity::class.java)
+                intent.putExtra("LINK", item.getJSONObject("data")["url"].toString())
+                view.context.startActivity(intent)
+            }
         }
     }
 }
