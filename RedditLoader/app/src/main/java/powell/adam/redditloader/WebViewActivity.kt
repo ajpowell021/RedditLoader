@@ -1,7 +1,6 @@
 package powell.adam.redditloader
 
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.support.v7.app.AppCompatActivity
 import android.webkit.WebView
 
@@ -17,6 +16,5 @@ class WebViewActivity: AppCompatActivity() {
         val webView = findViewById(R.id.web_view) as WebView
 
         webView.loadUrl(link)
-
     }
 }

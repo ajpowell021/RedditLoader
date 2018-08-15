@@ -3,10 +3,12 @@ package powell.adam.redditloader
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v7.app.AlertDialog
 import android.support.v7.widget.CardView
 import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.Toolbar
 import android.text.Html
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -27,17 +29,33 @@ class MainActivity : AppCompatActivity() {
 
         // Views
         val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // Data
-        val urlData = "https://www.reddit.com/.json"
+        // Listener
+        toolbar.setNavigationOnClickListener {
+            showDialog(recyclerView)
+        }
+
+        // Get frontpage data
+        getData(null, recyclerView)
+    }
+
+    private fun getData(subredditString: String?, recyclerView: RecyclerView) {
+        val urlData = if (subredditString.isNullOrBlank()) {
+            "https://www.reddit.com/.json"
+        }
+        else {
+            "https://www.reddit.com/r/$subredditString/.json"
+        }
+
         val request = JsonObjectRequest(Request.Method.GET, urlData, null, Response.Listener<JSONObject> { response ->
 
-            val posts = response
+            val redditPosts = response
                     .getJSONObject("data")
                     .getJSONArray("children")
 
-            recyclerView.adapter = PostAdapter(posts)
+            recyclerView.adapter = PostAdapter(redditPosts)
 
         },
                 Response.ErrorListener {
@@ -46,13 +64,12 @@ class MainActivity : AppCompatActivity() {
 
         VolleyService.requestQueue.add(request)
         VolleyService.requestQueue.start()
-
     }
 
-    class PostAdapter(val post: JSONArray) : RecyclerView.Adapter<PostViewHolder>() {
+    class PostAdapter(val redditPosts: JSONArray) : RecyclerView.Adapter<PostViewHolder>() {
 
         override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
-            holder.bind(post.getJSONObject(position))
+            holder.bind(redditPosts.getJSONObject(position))
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
@@ -61,22 +78,23 @@ class MainActivity : AppCompatActivity() {
             return PostViewHolder(view)
         }
 
-        override fun getItemCount(): Int = post.length()
+        override fun getItemCount(): Int = redditPosts.length()
     }
 
     class PostViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
 
         fun bind(item: JSONObject) {
 
-            val cardView = view.findViewById(R.id.item_view) as CardView
-            val title = view.findViewById(R.id.post_title) as TextView
-            val imageView = view.findViewById(R.id.post_image) as NetworkImageView
-            val subredditTextView = view.findViewById(R.id.sub_reddit_text) as TextView
+            // Define views
+            val cardView = view.findViewById<CardView>(R.id.item_view)
+            val titleView = view.findViewById<TextView>(R.id.post_title)
+            val imageView = view.findViewById<NetworkImageView>(R.id.post_image)
+            val subredditTextView = view.findViewById<TextView>(R.id.sub_reddit_text)
 
-
-            title.text = Html.fromHtml(item.getJSONObject("data")["title"].toString(), 0)
-            val urlTest = item.getJSONObject("data")["thumbnail"].toString()
-            imageView.setImageUrl(urlTest, VolleyService.imageLoader)
+            // Set views
+            titleView.text = Html.fromHtml(item.getJSONObject("data")["title"].toString(), 0)
+            val url = item.getJSONObject("data")["thumbnail"].toString()
+            imageView.setImageUrl(url, VolleyService.imageLoader)
             subredditTextView.text = Html.fromHtml(item.getJSONObject("data")["subreddit_name_prefixed"].toString(), 0)
 
             cardView.setOnClickListener {
@@ -85,5 +103,26 @@ class MainActivity : AppCompatActivity() {
                 view.context.startActivity(intent)
             }
         }
+    }
+
+    private fun showDialog(recyclerView: RecyclerView) {
+        val subredditArray = arrayOf("Frontpage", "funny", "rarepuppers", "nfl", "gaming", "androiddev") // Could do something fancier here if I had the time.
+
+        AlertDialog.Builder(this)
+            .setTitle("Subreddits")
+            .setSingleChoiceItems(subredditArray, 0) { _, which ->
+                val currentItem = subredditArray[which]
+                if (currentItem == "Frontpage") {
+                    getData(null, recyclerView)
+                }
+                else {
+                    getData(currentItem, recyclerView)
+                }
+            }
+            .setNegativeButton("Okay") { dialog, which ->
+
+            }
+            .create()
+            .show()
     }
 }
